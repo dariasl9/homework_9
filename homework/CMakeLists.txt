@@ -1,31 +1,34 @@
 cmake_minimum_required(VERSION 3.10)
 project(async VERSION 1.0.0 LANGUAGES CXX)
 
-# Настройки компиляции
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Публичные заголовки
 set(PUBLIC_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/async/async.h
 )
 
-# Исходные файлы библиотеки
 set(SOURCE_FILES
     src/async.cpp
 )
 
-# Создание библиотеки
 add_library(async SHARED ${SOURCE_FILES})
 target_include_directories(async PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
 
-# Создание демо программы
 add_executable(async_demo src/demo.cpp)
 target_link_libraries(async_demo async)
+
+find_package(Boost 1.70 REQUIRED COMPONENTS system)
+
+add_executable(bulk_server
+    src/bulk_server.cpp
+)
+
+target_link_libraries(bulk_server async Boost::system)
 
 # Установка
 install(TARGETS async
@@ -34,7 +37,7 @@ install(TARGETS async
     RUNTIME DESTINATION bin
 )
 
-install(TARGETS async_demo
+install(TARGETS async_demo bulk_server
     RUNTIME DESTINATION bin
 )
 
@@ -47,21 +50,6 @@ target_compile_definitions(async
         ASYNC_EXPORTS
 )
 
-# Сборка демо
-if(BUILD_DEMO)
-    add_executable(async_demo
-        src/demo.cpp
-    )
-    
-    target_link_libraries(async_demo async)
-    
-    # Установка демо
-    install(TARGETS async_demo
-        DESTINATION bin
-    )
-endif()
-
-# Установка библиотеки и заголовков
 install(TARGETS async
     EXPORT async-targets
     ARCHIVE DESTINATION lib
