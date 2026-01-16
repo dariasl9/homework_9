@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex -o pipefail
+
 # Очистка
 rm -rf build install
 rm -f async_demo bulk 2>/dev/null
